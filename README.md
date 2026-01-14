@@ -1,54 +1,116 @@
-# Multi-Tasking Traffic Controller with In-Application Programming (IAP)
+# STM32 Kernel IAP – Bootloader & Linux Driver Based Firmware Update System
 
-A full-stack embedded Linux project featuring an STM32-based Traffic Signal Controller. This system utilizes a custom **Linux Character Driver** to manage communication between a host PC and an STM32 Blue Pill, supporting both real-time traffic tasks and **In-Application Programming (IAP)** for seamless firmware updates over UART.
+## 📌 Project Overview
 
-## 🚀 Project Overview
+This project demonstrates a **complete embedded firmware update pipeline** using an STM32 microcontroller and a Linux host system. It combines **bare‑metal embedded programming**, a **custom bootloader with In‑Application Programming (IAP)**, and a **Linux kernel character driver** to perform firmware updates over UART.
 
-The system is architected into three distinct layers to handle real-time control and memory management:
+The embedded application implements a **Traffic Signal Controller**, while the bootloader enables safe firmware upgrades without external programmers. The Linux kernel driver acts as the host‑side interface for communicating with the STM32 device.
 
-* **Application Layer (STM32):** A multi-tasking traffic signal system.
-    * **Task 1 (Auto-Mode):** Simultaneous blinking and cycling of Red, Yellow, and Green LEDs.
-    * **Task 2 (Manual Override):** Real-time interruption via UART commands to force specific signal states.
-* **Bootloader Layer (STM32):** A custom secondary bootloader residing in the first sector of Flash memory. It manages the handshaking protocol, sector erasing, and high-speed programming of incoming `.bin` files using IAP techniques.
-* **Kernel Layer (Linux):** A specialized Character Device Driver acting as a UART wrapper. It provides a robust interface for user-space applications to interact with the hardware through a circular buffer and custom `ioctl` commands.
+This project is designed to showcase **real‑world embedded systems concepts** used in production devices such as IoT nodes, industrial controllers, and consumer electronics.
 
 ---
 
-## 🛠️ Technical Specifications
+## 🧠 Key Concepts Demonstrated
 
-### STM32 Memory Segmentation
-| Region | Memory Address | Purpose |
-| :--- | :--- | :--- |
-| **Bootloader** | `0x08000000` | UART Handshaking & Flash Programming |
-| **Application** | `0x08008000` | Traffic Logic & Manual Override Tasks |
-
-### Linux Character Driver (`stm32_ctrl`)
-The driver abstracts raw UART registers into a standard Linux file interface:
-* **Circular Buffer:** Implemented in the `read` function to prevent data loss during high-speed firmware streaming.
-* **IOCTL Interface:** * `SET_BAUD`: Dynamically adjust communication speeds.
-    * `CLR_BUF`: Flushes the kernel and hardware FIFO buffers to resolve synchronization and "ghost character" errors.
-    * `ENTER_BOOT`: Software-triggered jump from Application mode to the Bootloader.
-    * `GET_STATUS`: Polls the controller's current mode and health.
+* STM32 **custom bootloader** design
+* **In‑Application Programming (IAP)** using internal Flash
+* Flash memory partitioning (Bootloader vs Application)
+* UART‑based firmware transfer protocol
+* Linux **kernel character device driver**
+* Host ↔ MCU communication
+* Bare‑metal and **RTOS embeddec C programming**
+* System‑level thinking across OS and hardware
 
 ---
 
-## 🚦 Application Logic (Traffic Signal)
+## 🏗️ System Architecture
 
-In **Application Mode**, the system cycles through signal states automatically. Sending specific characters via the Python interface triggers a **Manual Override**:
+```
++-------------------+        UART       +-------------------------+
+|   Linux System    | <---------------> |        STM32 MCU        |
+|                   |                   |                         |
+|  Kernel Driver    |                   |  Bootloader (IAP)       |
+| (/dev/stm32_ctrl) |                   |  Application Firmware   |
+| (/dev/ttyACM0)    |                   |  Traffic Controller     |
++-------------------+                   +-------------------------+
+```
 
-| Command | Action |
-| :--- | :--- |
-| **'R'** | Forces **Red** Light ON |
-| **'Y'** | Forces **Yellow** Light ON |
-| **'G'** | Forces **Green** Light ON |
-| **'E'** | Exits Manual Override and returns to **Auto-Cycle** |
+## 🔌 Hardware Requirements
+
+* **STM32 Blue Pill (STM32F103C8)** or compatible STM32 MCU
+* USB‑to‑UART adapter (FTDI / CP2102)
+* LEDs (Red, Yellow, Green) + resistors (for traffic controller demo)
+* Linux PC (tested on Ubuntu) / Virtual Machine
+
+### UART Connections
+
+| STM32 Pin | USB‑UART |
+| --------- | -------- |
+| PA9 (TX)  | RX       |
+| PA10 (RX) | TX       |
+| GND       | GND      |
 
 ---
 
-## 🔧 Bootloader & IAP Protocol
+## 🧰 Software & Tools
 
-To ensure reliability during firmware updates, the system follows a strict synchronization flow:
-1.  **Handshake:** On Reset, the Bootloader opens a 5-second window to listen for an update trigger
-2.  **Buffer Sync:** The driver executes `ioctl(CLR_BUF)` to ensure the UART pipe is clean before data transmission.
-3.  **Fast Flash:** Data is transmitted in **256-byte chunks**. Each chunk is verified and written to the application space at `0x08008000`.
-4.  **Verification:** The bootloader inspects the **Initial Stack Pointer (MSP)** of the new binary before jumping to ensure the application is valid.
+### Embedded Side
+
+* STM32CubeIDE / arm‑none‑eabi‑gcc
+* OpenOCD / ST‑Link
+* C (bare‑metal)
+
+### Linux Side
+
+* Linux kernel headers
+* GCC
+* Makefile
+
+---
+
+## 🧪 Traffic Signal Application
+
+* Implements a basic **traffic light controller** using GPIOs
+* Uses timed state transitions (RED → YELLOW → GREEN)
+* Can be **updated remotely** using the IAP mechanism
+
+---
+
+## 🐧 Linux Kernel Driver
+
+### Driver Features
+
+* Character device interface
+* UART communication with STM32
+* Sends firmware binary in chunks
+* Triggers bootloader update mode
+
+## 🔄 Firmware Update Flow (IAP)
+
+1. Linux driver sends update command
+2. STM32 jumps to bootloader
+3. Bootloader erases application flash region
+4. New firmware is received over UART
+5. Flash programming is performed safely
+6. Bootloader jumps to updated application
+
+---
+## 🚀 Why This Project Matters
+
+This project reflects **industry‑relevant embedded development**, including:
+
+* Firmware update mechanisms used in real devices
+* Bootloader design considerations
+* Cross‑domain development (Linux + MCU)
+* Low‑level debugging and flash management
+
+It goes beyond basic microcontroller examples and demonstrates **system‑level embedded engineering skills**.
+
+---
+
+## 📈 Possible Improvements
+
+* CRC / checksum verification for firmware
+* Flash encryption or authentication
+* Support for multiple STM32 families
+* CLI user‑space tool instead of kernel driver
