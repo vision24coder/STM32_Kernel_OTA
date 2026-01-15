@@ -1,6 +1,6 @@
 # STM32 Kernel IAP – Bootloader & Linux Driver Based Firmware Update System
 
-## 📌 Project Overview
+##  Project Overview
 
 This project demonstrates a **complete embedded firmware update pipeline** using an STM32 microcontroller and a Linux host system. It combines **bare‑metal embedded programming**, a **custom bootloader with In‑Application Programming (IAP)**, and a **Linux kernel character driver** to perform firmware updates over UART.
 
@@ -10,7 +10,7 @@ This project is designed to showcase **real‑world embedded systems concepts** 
 
 ---
 
-## 🧠 Key Concepts Demonstrated
+##  Key Concepts Demonstrated
 
 * STM32 **custom bootloader** design
 * **In‑Application Programming (IAP)** using internal Flash
@@ -23,7 +23,7 @@ This project is designed to showcase **real‑world embedded systems concepts** 
 
 ---
 
-## 🏗️ System Architecture
+##  System Architecture
 
 ```
 +-------------------+        UART       +-------------------------+
@@ -52,7 +52,7 @@ This project is designed to showcase **real‑world embedded systems concepts** 
 
 ---
 
-## 🧰 Software & Tools
+##  Software & Tools
 
 ### Embedded Side
 
@@ -68,7 +68,7 @@ This project is designed to showcase **real‑world embedded systems concepts** 
 
 ---
 
-## 🧪 Traffic Signal Application
+##  Traffic Signal Application
 
 * Implements a basic **traffic light controller** using GPIOs
 * Uses timed state transitions (RED → YELLOW → GREEN)
@@ -76,7 +76,7 @@ This project is designed to showcase **real‑world embedded systems concepts** 
 
 ---
 
-## 🐧 Linux Kernel Driver
+##  Linux Kernel Driver
 
 ### Driver Features
 
@@ -85,7 +85,7 @@ This project is designed to showcase **real‑world embedded systems concepts** 
 * Sends firmware binary in chunks
 * Triggers bootloader update mode
 
-## 🔄 Firmware Update Flow (IAP)
+##  Firmware Update Flow (IAP)
 
 1. Linux driver sends update command
 2. STM32 jumps to bootloader
@@ -95,7 +95,7 @@ This project is designed to showcase **real‑world embedded systems concepts** 
 6. Bootloader jumps to updated application
 
 ---
-## 🚀 Why This Project Matters
+##  Why This Project Matters
 
 This project reflects **industry‑relevant embedded development**, including:
 
@@ -108,7 +108,7 @@ It goes beyond basic microcontroller examples and demonstrates **system‑level 
 
 ---
 
-## 📈 Possible Improvements
+##  Possible Improvements
 
 * CRC / checksum verification for firmware
 * Flash encryption or authentication
